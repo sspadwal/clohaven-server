@@ -33,8 +33,8 @@ app.use('/api/categories', categoryRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.get('/', (req, res) => {
-    res.status("hello world this is backend ")
-})
+    res.send('Service is running'); // Sending message to client
+});
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
