@@ -1,0 +1,21 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variable file
+.env
+
+# Logs
+logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build directories (if using any build tools like webpack)
+dist/
+build/
+
+# Temporary files
+*.swp
+*.swo
