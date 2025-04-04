@@ -1,23 +1,34 @@
 import express from 'express';
 import Cart from '../models/Cart.js';
-import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import { checkUser } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Clear entire cart (moved up)
+router.delete('/clear', checkUser, async(req, res) => {
+    try {
+        const cart = await Cart.findOneAndDelete({ user: req.user.id });
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+        res.json({ message: 'Cart cleared successfully' });
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        res.status(500).json({ message: 'Server error clearing cart' });
+    }
+});
+
 // Add to cart
 router.post('/', checkUser, async(req, res) => {
     const { productId, quantity } = req.body;
     try {
-        // Validate product exists
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
         let cart = await Cart.findOne({ user: req.user.id });
-
         if (!cart) {
             cart = new Cart({ user: req.user.id, items: [] });
         }
@@ -85,7 +96,7 @@ router.put('/:productId', checkUser, async(req, res) => {
     }
 });
 
-// Remove item from cart
+// Remove item from cart (moved down)
 router.delete('/:productId', checkUser, async(req, res) => {
     try {
         const cart = await Cart.findOne({ user: req.user.id });
@@ -107,51 +118,6 @@ router.delete('/:productId', checkUser, async(req, res) => {
     } catch (error) {
         console.error('Error removing item:', error);
         res.status(500).json({ message: 'Server error removing item' });
-    }
-});
-
-// Checkout
-router.post('/checkout', checkUser, async(req, res) => {
-    try {
-        const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');
-        if (!cart || cart.items.length === 0) {
-            return res.status(400).json({ message: 'Cart is empty' });
-        }
-
-        // Verify all products still exist and have sufficient stock
-        for (const item of cart.items) {
-            const product = await Product.findById(item.product._id);
-            if (!product) {
-                return res.status(400).json({
-                    message: `Product ${item.product.name} is no longer available`
-                });
-            }
-            // Add stock check if you have inventory management
-        }
-
-        let total = 0;
-        const orderItems = cart.items.map(item => {
-            const itemTotal = item.product.price * item.quantity;
-            total += itemTotal;
-            return {
-                product: item.product._id,
-                quantity: item.quantity,
-                price: item.product.price
-            };
-        });
-
-        const order = new Order({
-            user: req.user.id,
-            items: orderItems,
-            total
-        });
-        await order.save();
-
-        await Cart.deleteOne({ user: req.user.id });
-        res.json({ message: 'Checkout successful!', order });
-    } catch (error) {
-        console.error('Error during checkout:', error);
-        res.status(500).json({ message: 'Server error during checkout' });
     }
 });
 

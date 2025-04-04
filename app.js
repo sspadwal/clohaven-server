@@ -7,13 +7,14 @@ import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/orders.js';
 import adminRoutes from './routes/admin.js';
 import categoryRoutes from './routes/categories.js';
+import paymentRoutes from './routes/payments.js';
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-    origin: ['https://clohaven.vercel.app', 'http://localhost:5173'], // Add both ports
+    origin: ['https://clohaven.vercel.app', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -29,11 +30,12 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/payments', paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 
 app.get('/', (req, res) => {
-    res.send('Service is running'); // Sending message to client
+    res.send('Service is running');
 });
 
 app.listen(PORT, '0.0.0.0', () => {
