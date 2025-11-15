@@ -17,7 +17,8 @@ const orderSchema = new mongoose.Schema({
     },
     paymentMethod: { type: String, required: true },
     paymentStatus: { type: String, default: 'pending', enum: ['pending', 'paid', 'failed'] },
-    paymentId: { type: String }
+    paymentId: { type: String },
+    email: { type: String } // Optional email field
 });
 
 export default mongoose.model('Order', orderSchema);
